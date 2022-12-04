@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import team.goodtaste.backend.common.R;
 import team.goodtaste.backend.entity.User;
 import team.goodtaste.backend.service.UserService;
-import team.goodtaste.backend.utils.JwtUtils;
+// import team.goodtaste.backend.utils.JwtUtils;
 
 @Slf4j
 @RestController
@@ -59,12 +59,12 @@ public class UserController {
             return R.error("密码错误");
         }
 
-        // 5、登录成功，将员工id存入Session并返回登录成功结果
-        // request.getSession().setAttribute("user", userRet.getUid());
+        // 5、登录成功，将用户uid存入Session并返回登录成功结果
+        request.getSession().setAttribute("uid", userRet.getUid());
 
         // 5、登录成功，生成token并返回用户
-        String token = JwtUtils.generateToken(userRet.getNickname());
-        userRet.setToken(token);
+        // String token = JwtUtils.generateToken(userRet.getNickname());
+        // userRet.setToken(token);
 
         log.info("登录成功");
         return R.success(userRet);
@@ -118,7 +118,7 @@ public class UserController {
      * @return
      */
     @GetMapping("/page")
-    public R<Page<User>> page(int page, int pageSize, String name) {
+    public R<Page<User>> page(Integer page, Integer pageSize, String name) {
         log.info("page = {}, pageSize = {}, name = {}", page, pageSize, name);
 
         // 1、构造分页构造器
