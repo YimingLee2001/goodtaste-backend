@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,14 +59,14 @@ public class SeekController {
     }
 
     /**
-     * 修改寻味道信息
+     * 按id修改寻味道信息
      * 
      * @param request
      * @param seek
      * @return
      */
-    @PostMapping("update")
-    public R<String> update(HttpServletRequest request, @RequestBody Seek seek) {
+    @PostMapping("updatebyid")
+    public R<String> updateById(HttpServletRequest request, @RequestBody Seek seek) {
 
         // 1、能通过filter，就一定是登录过了
         Long requestUid = (Long) request.getSession().getAttribute("uid");
@@ -91,41 +92,116 @@ public class SeekController {
         return R.success("修改成功");
     }
 
-    @GetMapping("/get")
-    public R<Seek> get(Long sid) {
+    /**
+     * 按id获取寻味道信息
+     * 
+     * @param sid
+     * @return
+     */
+    @GetMapping("/getbyid")
+    public R<Seek> getByID(Long sid) {
         log.info("sid = {}", sid);
 
         // 1、单独查询这一个
         Serializable seriSid = (Serializable) sid;
-
         Seek seek = seekService.getById(seriSid);
 
+        // 2、不存在，返回错误
+        if (seek == null) {
+            return R.error("信息不存在");
+        }
+
+        // 3、返回寻味道信息
         return R.success(seek);
     }
 
     /**
-     * 寻味道信息分页查询
+     * 按topic分页查询寻味道信息
      * 
      * @param page
      * @param pageSize
-     * @param name
+     * @param topic
      * @return
      */
-    @GetMapping("/page")
-    public R<Page<Seek>> page(Integer page, Integer pageSize, String name) {
-        log.info("page = {}, pageSize = {}, name = {}", page, pageSize, name);
+    @GetMapping("/pagebytopic")
+    public R<Page<Seek>> pageByTopic(Integer page, Integer pageSize, String topic) {
+        log.info("page = {}, pageSize = {}, topic = {}", page, pageSize, topic);
 
+        // 1、构造分页构造器
         Page<Seek> pageInfo = new Page<>(page, pageSize);
 
+        // 2、构造条件构造器
         LambdaQueryWrapper<Seek> queryWrapper = new LambdaQueryWrapper<>();
 
-        queryWrapper.like(StringUtils.isNotEmpty(name), Seek::getTopic, name);
+        // 3、添加过滤条件
+        queryWrapper.like(StringUtils.isNotEmpty(topic), Seek::getTopic, topic);
 
+        // 4、排序条件
         queryWrapper.orderByDesc(Seek::getUpdateTime);
 
+        // 5、执行查询
         seekService.page(pageInfo, queryWrapper);
 
         return R.success(pageInfo);
+    }
+
+    /**
+     * 按用户id分页查询寻味道信息
+     * 
+     * @param page
+     * @param pageSize
+     * @param uid
+     * @return
+     */
+    @GetMapping("/pagebyuser")
+    public R<Page<Seek>> pageByUser(Integer page, Integer pageSize, Long uid) {
+        log.info("page = {}, pageSize = {}, uid = {}", page, pageSize, uid);
+
+        // 1、构造分页构造器
+        Page<Seek> pageInfo = new Page<>(page, pageSize);
+
+        // 2、构造条件构造器
+        LambdaQueryWrapper<Seek> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 3、添加过滤条件
+        queryWrapper.eq(Seek::getUid, uid);
+
+        // 4、排序条件
+        queryWrapper.orderByDesc(Seek::getUpdateTime);
+
+        // 5、执行查询
+        seekService.page(pageInfo, queryWrapper);
+
+        return R.success(pageInfo);
+    }
+
+    /**
+     * 按id删除寻味道
+     * 
+     * @param request
+     * @param seek
+     * @return
+     */
+    @DeleteMapping("/removebyid")
+    public R<String> removeById(HttpServletRequest request, @RequestBody Seek seek) {
+        // 1、能通过filter，就一定是登录过了
+        Long requestUid = (Long) request.getSession().getAttribute("uid");
+
+        // 2、检查修改的是否是自己的发布
+        Long seekUid = seek.getUid();
+        if (!requestUid.equals(seekUid)) {
+            return R.error("只能删除自己的发布");
+        }
+
+        // 3、拿到寻味道的sid
+        Long sid = seek.getSid();
+
+        // 3、删除这条数据
+        seekService.removeById((Serializable) sid);
+
+        // 4、返回成功消息
+        return R.success("删除成功");
+
     }
 
 }

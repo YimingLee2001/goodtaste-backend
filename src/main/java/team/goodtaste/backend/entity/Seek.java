@@ -18,7 +18,7 @@ public class Seek implements Serializable {
 
     private Long uid;
 
-    private Integer tasteType;
+    private String tasteType;
 
     private String topic;
 

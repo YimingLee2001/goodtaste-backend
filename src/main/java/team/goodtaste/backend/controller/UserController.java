@@ -1,5 +1,6 @@
 package team.goodtaste.backend.controller;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import javax.servlet.http.HttpServletRequest;
@@ -110,16 +111,16 @@ public class UserController {
     }
 
     /**
-     * 用户信息分页查询
+     * 按昵称分页查询用户信息
      * 
      * @param page
      * @param pageSize
-     * @param name
+     * @param nickname
      * @return
      */
-    @GetMapping("/page")
-    public R<Page<User>> page(Integer page, Integer pageSize, String name) {
-        log.info("page = {}, pageSize = {}, name = {}", page, pageSize, name);
+    @GetMapping("/pagebynickname")
+    public R<Page<User>> pageByNickname(Integer page, Integer pageSize, String nickname) {
+        log.info("page = {}, pageSize = {}, nickname = {}", page, pageSize, nickname);
 
         // 1、构造分页构造器
         Page<User> pageInfo = new Page<>(page, pageSize);
@@ -128,7 +129,7 @@ public class UserController {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
 
         // 3、添加过滤条件
-        queryWrapper.like(StringUtils.isNotEmpty(name), User::getNickname, name);
+        queryWrapper.like(StringUtils.isNotEmpty(nickname), User::getNickname, nickname);
 
         // 4、排序条件
         queryWrapper.orderByDesc(User::getUpdateTime);
@@ -137,5 +138,65 @@ public class UserController {
         userService.page(pageInfo, queryWrapper);
 
         return R.success(pageInfo);
+    }
+
+    /**
+     * 按id获取用户信息
+     * 
+     * @param uid
+     * @return
+     */
+    @GetMapping("/getbyid")
+    public R<User> getById(Long uid) {
+        log.info("uid = {}", uid);
+
+        // 1、将uid转换成Serializable类型
+        Serializable seriUid = (Serializable) uid;
+
+        // 2、去按主键查询
+        User userRet = userService.getById(seriUid);
+
+        // 3、查不到则报错
+        if (userRet == null) {
+            return R.error("用户不存在");
+        }
+
+        // 4、返回用户信息
+        return R.success(userRet);
+    }
+
+    /**
+     * 按id修改个人信息
+     * 
+     * @param request
+     * @param user
+     * @return
+     */
+    @PostMapping("/updatebyid")
+    public R<String> updateById(HttpServletRequest request, @RequestBody User user) {
+
+        // 1、能通过filter，就一定是登录过了
+        Long requestUid = (Long) request.getSession().getAttribute("uid");
+
+        // 2、检查修改的是否是自己的信息
+        Long userUid = user.getUid();
+        if (!requestUid.equals(userUid)) {
+            return R.error("只能修改自己的信息");
+        }
+
+        // 3、拿到原来的user
+        User oldUser = userService.getById((Serializable) userUid);
+
+        // 4、修改一些user信息
+        oldUser.setUpdateTime(LocalDateTime.now());
+        oldUser.setPhone(user.getPhone());
+        oldUser.setAbout(user.getAbout());
+
+        // 5、特殊的，修改密码
+        String password = user.getPassword();
+        oldUser.setPassword(DigestUtils.md5DigestAsHex(password.getBytes()));
+
+        // 6、修改成功
+        return R.success("修改成功");
     }
 }

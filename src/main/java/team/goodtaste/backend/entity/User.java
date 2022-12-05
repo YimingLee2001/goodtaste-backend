@@ -26,7 +26,7 @@ public class User implements Serializable {
 
     private Integer accountType;
 
-    private Integer idType;
+    private String idType;
 
     private String idNumber;
 
@@ -36,9 +36,9 @@ public class User implements Serializable {
 
     private String about;
 
-    private Integer province;
+    private String province;
 
-    private Integer city;
+    private String city;
 
     private LocalDateTime createTime;
 
