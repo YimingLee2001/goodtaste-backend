@@ -37,7 +37,12 @@ public class LoginCheckFilter implements Filter {
         // 1、获取本次请求的URL
         String requestURL = request.getRequestURI();
 
-        // log.info("拦截到请求：{}", requestURL);
+        log.info("拦截到请求：{}", requestURL);
+        // ServletInputStream inputStream = request.getInputStream();
+        // byte[] temByte = new byte[2000];
+        // while (inputStream.readLine(temByte, 0, 5000) != -1) {
+        // log.info("部分数据：{}", temByte);
+        // }
 
         String[] urls = new String[] {
                 "/user/login",
@@ -50,7 +55,7 @@ public class LoginCheckFilter implements Filter {
 
         // 3、如果不需要处理，则直接放行
         if (check) {
-            // log.info("本次请求{}不需要处理", requestURL);
+            log.info("本次请求{}不需要处理", requestURL);
             filterChain.doFilter(request, response);
             return;
         }

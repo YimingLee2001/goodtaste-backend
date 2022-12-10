@@ -191,12 +191,44 @@ public class UserController {
         oldUser.setUpdateTime(LocalDateTime.now());
         oldUser.setPhone(user.getPhone());
         oldUser.setAbout(user.getAbout());
+        oldUser.setAvatarUrl(user.getAvatarUrl());
+        oldUser.setUsername(user.getUsername());
 
-        // 5、特殊的，修改密码
+        // 6、写入数据库
+        userService.updateById(oldUser);
+        return R.success("修改成功");
+    }
+
+    /**
+     * 按id修改密码
+     * 
+     * @param request
+     * @param user
+     * @return
+     */
+    @PostMapping("/updatepasswordbyid")
+    public R<String> updatePasswordById(HttpServletRequest request, @RequestBody User user) {
+        // 1、能通过filter，就一定是登录过了
+        Long requestUid = (Long) request.getSession().getAttribute("uid");
+
+        // 2、检查修改的是否是自己的信息
+        Long userUid = user.getUid();
+        if (!requestUid.equals(userUid)) {
+            return R.error("只能修改自己的密码");
+        }
+
+        // 3、拿到原来的user
+        User oldUser = userService.getById((Serializable) userUid);
+
+        // 4、修改一些user信息
+        oldUser.setUpdateTime(LocalDateTime.now());
+
+        // 5、修改密码
         String password = user.getPassword();
         oldUser.setPassword(DigestUtils.md5DigestAsHex(password.getBytes()));
 
-        // 6、修改成功
+        // 6、写入数据库
+        userService.updateById(oldUser);
         return R.success("修改成功");
     }
 }

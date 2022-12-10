@@ -78,12 +78,14 @@ public class SeekController {
         }
 
         // 3、拿到原来的seek
-        Seek oldSeek = seekService.getById((Serializable) seekUid);
+        Seek oldSeek = seekService.getById((Serializable) seek.getSid());
 
         // 4、修改一些seek信息
         oldSeek.setUpdateTime(LocalDateTime.now());
         oldSeek.setTopic(seek.getTopic());
         oldSeek.setMaxPrice(seek.getMaxPrice());
+        oldSeek.setPictureUrl(seek.getPictureUrl());
+        oldSeek.setAbout(seek.getAbout());
 
         // 5、对应则修改数据库
         seekService.updateById(oldSeek);
@@ -201,7 +203,34 @@ public class SeekController {
 
         // 4、返回成功消息
         return R.success("删除成功");
+    }
 
+    /**
+     * 按城市分页查询寻味道信息
+     * 
+     * @param page
+     * @param pageSize
+     * @param city
+     * @return
+     */
+    @GetMapping("/pagebycity")
+    public R<Page<Seek>> pageByCity(Integer page, Integer pageSize, String city) {
+        // 1、构造分页构造器
+        Page<Seek> pageInfo = new Page<>(page, pageSize);
+
+        // 2、构造条件构造器
+        LambdaQueryWrapper<Seek> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 3、添加过滤条件
+        queryWrapper.eq(Seek::getCity, city);
+
+        // 4、排序条件
+        queryWrapper.orderByDesc(Seek::getUpdateTime);
+
+        // 5、执行查询
+        seekService.page(pageInfo, queryWrapper);
+
+        return R.success(pageInfo);
     }
 
 }

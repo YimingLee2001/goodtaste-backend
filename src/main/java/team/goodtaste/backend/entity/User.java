@@ -26,6 +26,8 @@ public class User implements Serializable {
 
     private Integer accountType;
 
+    private String username;
+
     private String idType;
 
     private String idNumber;
