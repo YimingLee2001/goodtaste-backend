@@ -23,11 +23,11 @@ import team.goodtaste.backend.common.R;
 import team.goodtaste.backend.entity.Detail;
 import team.goodtaste.backend.entity.Reply;
 import team.goodtaste.backend.entity.Seek;
-import team.goodtaste.backend.entity.Statistics;
+import team.goodtaste.backend.entity.Statis;
 import team.goodtaste.backend.service.DetailService;
 import team.goodtaste.backend.service.ReplyService;
 import team.goodtaste.backend.service.SeekService;
-import team.goodtaste.backend.service.StatisticsService;
+import team.goodtaste.backend.service.StatisService;
 
 @Slf4j
 @RestController
@@ -44,7 +44,7 @@ public class SeekController {
     private DetailService detailService;
 
     @Autowired
-    private StatisticsService statisticsService;
+    private StatisService statisticsService;
 
     /**
      * 新增寻味道信息
@@ -329,15 +329,15 @@ public class SeekController {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
             String yearMonth = detail.getDealTime().format(formatter);
             String city = oldSeek.getCity();
-            LambdaQueryWrapper<Statistics> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(Statistics::getCity, city);
-            queryWrapper.eq(Statistics::getYearMonth, yearMonth);
-            Statistics oldStatistics = statisticsService.getOne(queryWrapper);
+            LambdaQueryWrapper<Statis> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(Statis::getCity, city);
+            queryWrapper.eq(Statis::getYearmonth, yearMonth);
+            Statis oldStatistics = statisticsService.getOne(queryWrapper);
             if (oldStatistics == null) {
-                Statistics statistics = new Statistics();
+                Statis statistics = new Statis();
                 statistics.setCity(city);
                 statistics.setProvince(oldSeek.getProvince());
-                statistics.setYearMonth(yearMonth);
+                statistics.setYearmonth(yearMonth);
                 statistics.setTotalCount(1);
                 statistics.setTotalFee(4);
                 statisticsService.save(statistics);

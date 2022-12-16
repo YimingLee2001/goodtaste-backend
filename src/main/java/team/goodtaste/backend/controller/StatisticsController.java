@@ -16,9 +16,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import team.goodtaste.backend.common.R;
 import team.goodtaste.backend.entity.Detail;
-import team.goodtaste.backend.entity.Statistics;
+import team.goodtaste.backend.entity.Statis;
 import team.goodtaste.backend.service.DetailService;
-import team.goodtaste.backend.service.StatisticsService;
+import team.goodtaste.backend.service.StatisService;
 
 @Slf4j
 @RestController
@@ -29,7 +29,7 @@ public class StatisticsController {
     private DetailService detailService;
 
     @Autowired
-    private StatisticsService statisticsService;
+    private StatisService statisticsService;
 
     /**
      * 按地区时段分页查询detail
@@ -71,7 +71,7 @@ public class StatisticsController {
     }
 
     /**
-     * 按地区时段列表查询statistics
+     * 按地区时段列表查询statis
      * 
      * @param city
      * @param startTime
@@ -79,24 +79,26 @@ public class StatisticsController {
      * @return
      */
     @GetMapping("/listbycitytime")
-    public R<List<Statistics>> listByCityTime(String city, String startTime, String endTime) {
+    public R<List<Statis>> listByCityTime(String city, String startTime, String endTime) {
         log.info("city={},startTime={},endTime={}", city, startTime, endTime);
 
         // 1、构造条件构造器
-        LambdaQueryWrapper<Statistics> queryWrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<Statis> queryWrapper = new LambdaQueryWrapper<>();
 
         // 2、添加过滤条件
-        queryWrapper.between(Statistics::getYearMonth, startTime, endTime);
+        // queryWrapper.ge(Statis::getYearMonth, startTime);
+        // queryWrapper.le(Statis::getYearMonth, endTime);
+        queryWrapper.between(Statis::getYearmonth, startTime, endTime);
         if (city == null) {
             return R.error("城市不能为空");
         }
-        queryWrapper.eq(Statistics::getCity, city);
+        queryWrapper.eq(Statis::getCity, city);
 
         // 3、排序条件
-        queryWrapper.orderByAsc(Statistics::getYearMonth);
+        queryWrapper.orderByAsc(Statis::getYearmonth);
 
         // 4、执行查询
-        List<Statistics> listInfo = statisticsService.list(queryWrapper);
+        List<Statis> listInfo = statisticsService.list(queryWrapper);
 
         return R.success(listInfo);
     }
