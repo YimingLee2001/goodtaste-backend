@@ -26,5 +26,5 @@ public class Reply implements Serializable {
 
     private LocalDateTime updateTime;
 
-    private Integer state;
+    private Integer state; // 0：待接受；1：同意；2：拒绝；3：取消
 }

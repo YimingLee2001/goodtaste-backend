@@ -15,15 +15,11 @@ public class Statistics implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long sid;
 
-    private Integer year;
-
-    private Integer month;
+    private String yearMonth;
 
     private String province;
 
     private String city;
-
-    private String tasteType;
 
     private Integer totalCount;
 

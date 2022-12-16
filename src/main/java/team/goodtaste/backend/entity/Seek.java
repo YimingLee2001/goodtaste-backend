@@ -34,7 +34,7 @@ public class Seek implements Serializable {
 
     private LocalDateTime updateTime;
 
-    private Integer state;
+    private Integer state; // 0：已完成、1：待响应、2：已取消、3：到期未达成
 
     private String province;
 

@@ -13,8 +13,14 @@ public class Detail implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(type = IdType.INPUT)
+    @TableId(type = IdType.AUTO)
+    private Long did;
+
+    private String topic;
+
     private Long sid;
+
+    private Long rid;
 
     private Long suid;
 
@@ -22,7 +28,9 @@ public class Detail implements Serializable {
 
     private LocalDateTime dealTime;
 
-    private Integer pfee;
+    private Integer sfee;
 
     private Integer rfee;
+
+    private String city;
 }
